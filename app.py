@@ -1,40 +1,32 @@
 import streamlit as st
+from model_understanding import query_understanding, get_products
 from db import check_db, store_in_db, get_products_from_db
 from search_query import search_myntra_for_query
 from display_table import convert_from_sql, convert_from_json
-from model_understanding import model_understanding
 
 # from llama_index.core import PromptTemplate, VectorStoreIndex, get_response_synthesizer, SummaryIndex
 
 # import chromadb
 # from llama_index.vector_stores.chroma import ChromaVectorStore
 
-query = st.text_input("Enter your query")
+query = st.text_input("Hey there! What do you want to buy today?")
 
 if query:
-    result = model_understanding(query)
+    result = query_understanding(query)
     st.write(result)
+    for product in result:
+        if check_db(product['product']):
+            data = get_products_from_db(product['product'])
+            df = convert_from_sql(data)
+            for intent in product['intents']:
+                st.write(get_products(intent, df))
+        else:
+            data = search_myntra_for_query(product['product'])
+            store_in_db(product['product'], data)
+            df = convert_from_json(data)
+            for intent in product['intents']:
+                st.write(get_products(intent, df))
 
-
-# if query:
-#     keywords = {'bag', 'shoes', 'shirts', 'dress', 't-shirts', 'socks', 'makeup'}
-#     query_keys = []
-
-#     for word in query.split(' '):
-#         if word in keywords:
-#             query_keys.append(word)
-
-#     for key in query_keys:
-#         if check_db(key):
-#             print("Products found in the database")
-#             st.write(convert_from_sql(get_products_from_db(key)))
-#         else:
-#             print("Products not found in the database!")
-#             print("Searching for products on Myntra..")
-#             product_data = search_myntra_for_query(key)
-#             store_in_db(key, product_data)
-#             print("Products stored in the database!")
-#             st.write(convert_from_json(product_data))
 
 # index = VectorStoreIndex.from_documents(documents)
 #

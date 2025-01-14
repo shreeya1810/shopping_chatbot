@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 import json
 import os
 import re
-import ast
 
 load_dotenv()
 nv_api_key = os.getenv("NV_API_KEY")
@@ -15,7 +14,7 @@ llm = NVIDIA(api_key=nv_api_key, model="meta/llama3-8b-instruct")
 Settings.llm = llm
 Settings.embed_model = NVIDIAEmbedding(model = "NV-Embed-QA", api_key=nv_api_key,  truncate='END')
 
-def model_understanding(query):
+def query_understanding(query):
     # 1. Check if the query is about a list of products
     # 2. Check if the query is about the lowest price
     # 3. Check if the query is about the best deals
@@ -40,15 +39,17 @@ def model_understanding(query):
     3. Product category should be in lowercase and a list of words, example: "t-shirts and shoes" should be ["t-shirt", "shoes"]
     3. Check for any specific requirements or constraints (price, quality, rating etc)
     4. The type of information being requested (list, best deal, lowest price etc)
-    5. The user's intent, should be in lowercase and returned as a list of intents, example: "i want the highest rating and lowest price" should be ["lowest_price", "highest_rating"]
+    5. The user's intent, should be in lowercase and returned as a list of intents, example: "i want the highest rating and lowest price" should be ["lowest_price", "highest_rating"].
+    6. Recognize certain intents that are similar to keywords that can be used to access information from the dataframe, for example: cheapest should be identified as lowest_price and not cheapest, quality should be identified as highest_rating, return for price should be identified as best_deals, etc.
+    7. If the user's intent is not clear, return an empty list.
 
     Query: {query}
 
-    Give the result as a python dictionary of the following format:
-    result = {
-        "Product": {array of product categories},
-        "Intent": {array of intents}
-    }
+    Give the result as an array of dictionaries, where each dictionary has the following format:
+        {
+        "product": {name of product},
+        "intents": {array of intents}
+        }
     """
 
     # Create prompt template for intent analysis
@@ -56,14 +57,21 @@ def model_understanding(query):
 
     # Get intent analysis from LLM
     response = llm.complete(prompt.format(query=query))
-    match = re.search(r"result\s*=\s*({.*?})", response.text, re.DOTALL)
+    
+    match = re.search(r'\[\s*{.*?}\s*]', response.text, re.DOTALL)
 
     if match:
-        dict_str = match.group(1)
-        extracted_dict = ast.literal_eval(dict_str)  # Convert string to dictionary
-        return extracted_dict
-
+        extracted_json = match.group(0)
+        parsed_json = json.loads(extracted_json)  # Convert to Python list of dicts
+        return parsed_json # Output as Python list of dictionaries
     return None
 
 
-    
+def get_products(intent, products):
+    if intent == 'lowest_price':
+        lowest_price_product = products.loc[products['Price'].idxmin()]  # Find the row with the lowest price
+        return f"The lowest price product is {lowest_price_product['Name']} with price {lowest_price_product['Price']}"
+    elif intent == 'list':
+        return products.iloc[0:5]
+    else:
+        return "Invalid intent"
