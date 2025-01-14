@@ -1,4 +1,5 @@
-import streamlit as st
+# import streamlit as st
+from flask import Flask, render_template, url_for, request
 from model_understanding import query_understanding, get_products
 from db import check_db, store_in_db, get_products_from_db
 from search_query import search_myntra_for_query
@@ -9,36 +10,38 @@ from display_table import convert_from_sql, convert_from_json
 # import chromadb
 # from llama_index.vector_stores.chroma import ChromaVectorStore
 
-query = st.text_input("Hey there! What do you want to buy today?")
-
-if query:
-    result = query_understanding(query)
-    st.write(result)
-    for product in result:
-        if check_db(product['product']):
-            data = get_products_from_db(product['product'])
-            df = convert_from_sql(data)
-            for intent in product['intents']:
-                st.write(get_products(intent, df))
-        else:
-            data = search_myntra_for_query(product['product'])
-            store_in_db(product['product'], data)
-            df = convert_from_json(data)
-            for intent in product['intents']:
-                st.write(get_products(intent, df))
+app = Flask(__name__)
 
 
-# index = VectorStoreIndex.from_documents(documents)
-#
-# response_synthesizer = get_response_synthesizer(response_mode="refine")
-# query_engine = index.as_retriever()
+@app.route('/', methods = ['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        # render the query on the page
+        response = 'HI!'
+        return render_template('index.html', response=response)
 
-# def get_response(query_str):
-#     retreived_docs = query_engine.retrieve(query_str)
-#     prompt = prompt_template.format(context=retreived_docs, query_str=query_str)
-#     response = llm.complete(prompt)
-#     return response
-#
-# if query_str:
-#     response = get_response(query_str)
-#     st.write(response.text)
+    else:
+        return render_template('index.html', response='')
+
+
+if __name__=="__main__":
+    app.run(debug=True)
+
+# query = st.text_input("Hey there! What do you want to buy today?")
+
+# if query:
+#     result = query_understanding(query)
+#     st.write(result)
+    
+#     for product in result:
+#         if check_db(product['product']):
+#             data = get_products_from_db(product['product'])
+#             df = convert_from_sql(data)
+#             for intent in product['intents']:
+#                 st.write(get_products(intent, df))
+#         else:
+#             data = search_myntra_for_query(product['product'])
+#             store_in_db(product['product'], data)
+#             df = convert_from_json(data)
+#             for intent in product['intents']:
+#                 st.write(get_products(intent, df))
