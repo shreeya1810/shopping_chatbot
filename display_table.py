@@ -13,7 +13,7 @@ def convert_from_sql(sql_results):
             'Brand': product.brand,
             'Name': product.name, 
             'Price': product.price,
-            'Link': product.link
+            'Link': product.link,
         }
         product_list.append(product_dict)
     

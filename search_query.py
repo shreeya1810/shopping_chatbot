@@ -58,7 +58,7 @@ def search_myntra_for_query(key):
             "brand": brand,
             "name": name,
             "price": price,
-            "link": link
+            "link": link,
         })
     
     driver.quit()  # Ensure the driver quits even if there's an error

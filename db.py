@@ -43,10 +43,10 @@ def store_in_db(product_name, product_data):
     table = Table(
         product_name, metadata,
         Column("id", Integer, primary_key=True, autoincrement=True),
-        Column("brand", String, nullable=False),
-        Column("name", String, nullable=False),
-        Column("price", String, nullable=False),
-        Column("link", String, nullable=False),
+        Column("brand", String, nullable=True),
+        Column("name", String, nullable=True),
+        Column("price", String, nullable=True),
+        Column("link", String, nullable=True),
         extend_existing=True  # Allows modification if table exists
     )
 
