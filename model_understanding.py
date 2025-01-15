@@ -62,9 +62,12 @@ def query_understanding(query):
 
     if match:
         extracted_json = match.group(0)
-        parsed_json = json.loads(extracted_json)  # Convert to Python list of dicts
-        return parsed_json # Output as Python list of dictionaries
-    return None
+        try:
+            parsed_json = json.loads(extracted_json)  # Convert to Python list of dicts
+            return parsed_json # Output as Python list of dictionaries
+        except json.JSONDecodeError:
+            return "Couldn't understand the query!!"
+    return "Couldn't understand the query!!"
 
 
 def get_products(intent, products):

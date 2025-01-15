@@ -42,11 +42,11 @@ def store_in_db(product_name, product_data):
     # Define table dynamically
     table = Table(
         product_name, metadata,
-        Column("id", Integer, primary_key=True, autoincrement=True),
-        Column("brand", String, nullable=True),
-        Column("name", String, nullable=True),
-        Column("price", String, nullable=True),
-        Column("link", String, nullable=True),
+        Column("ID", Integer, primary_key=True, autoincrement=True),
+        Column("Brand", String, nullable=True),
+        Column("Name", String, nullable=True),
+        Column("Price", String, nullable=True),
+        Column("Link", String, nullable=True),
         extend_existing=True  # Allows modification if table exists
     )
 

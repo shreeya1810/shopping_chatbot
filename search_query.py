@@ -55,10 +55,10 @@ def search_myntra_for_query(key):
 
             # Append the scraped data to product_data
         all_products.append({
-            "brand": brand,
-            "name": name,
-            "price": price,
-            "link": link,
+            "Brand": brand,
+            "Name": name,
+            "Price": price,
+            "Link": link,
         })
     
     driver.quit()  # Ensure the driver quits even if there's an error

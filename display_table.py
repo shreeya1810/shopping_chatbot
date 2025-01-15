@@ -10,10 +10,10 @@ def convert_from_sql(sql_results):
     product_list = []
     for product in sql_results:
         product_dict = {
-            'Brand': product.brand,
-            'Name': product.name, 
-            'Price': product.price,
-            'Link': product.link,
+            'Brand': product.Brand,
+            'Name': product.Name, 
+            'Price': product.Price,
+            'Link': product.Link,
         }
         product_list.append(product_dict)
     
